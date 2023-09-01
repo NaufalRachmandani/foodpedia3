@@ -1,9 +1,10 @@
+import 'package:dio/dio.dart';
+import 'package:foodpedia/data/common/dio.dart';
 import 'package:foodpedia/presentation/feature/food_detail/bloc/food_detail_bloc.dart';
 import 'package:foodpedia/presentation/feature/home/bloc/food/food_bloc.dart';
 import 'package:foodpedia/presentation/feature/home/bloc/home/home_bloc.dart';
 import 'package:foodpedia/presentation/feature/home/bottom_sheet_category/bloc/bts_category_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart' as http;
 
 import 'data/food/food_repository.dart';
 
@@ -13,12 +14,12 @@ void init() {
   initRepository();
   initBloc();
 
-  getIt.registerLazySingleton<http.Client>(() => http.Client());
+  getIt.registerLazySingleton<Dio>(() => configureDio());
 }
 
 void initRepository() {
   getIt.registerLazySingleton<FoodRepository>(
-    () => FoodRepository(client: getIt.get<http.Client>()),
+    () => FoodRepository(dio: getIt.get<Dio>()),
   );
 }
 

@@ -1,28 +1,27 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
-import 'package:foodpedia/common/base_url.dart';
+import 'package:dio/dio.dart';
+import 'package:foodpedia/data/common/base_url.dart';
+import 'package:foodpedia/data/common/dio.dart';
 import 'package:foodpedia/data/food/response/food_category_response.dart';
 import 'package:foodpedia/data/food/response/food_detail_response.dart';
 import 'package:foodpedia/data/food/response/food_list_response.dart';
-import 'package:http/http.dart' as http;
 
 import '../common/failure.dart';
 
 class FoodRepository {
-  final http.Client client;
+  final Dio dio;
 
-  FoodRepository({required this.client});
+  FoodRepository({required this.dio});
 
   Future<Either<Failure, FoodCategoryResponse>> getFoodCategory() async {
     try {
-      var uri = Uri.parse("$urlStaging/list.php?c=list");
-      final response = await client.get(uri);
+      final response = await dio.get("$urlStaging/list.php?c=list");
 
-      String jsonDataString = response.body.toString();
-      var jsonData = jsonDecode(jsonDataString);
-
-      return Right(FoodCategoryResponse.fromJson(jsonData));
+      return Right(FoodCategoryResponse.fromJson(response.data));
+    } on DioException catch (e) {
+      return Left(dioException(e));
     } catch (e) {
       return Left(ServerFailure(""));
     }
@@ -31,13 +30,11 @@ class FoodRepository {
   Future<Either<Failure, FoodListResponse>> getFoodList(
       String? category) async {
     try {
-      var uri = Uri.parse("$urlStaging/filter.php?c=$category");
-      final response = await client.get(uri);
+      final response = await dio.get("$urlStaging/filter.php?c=$category");
 
-      String jsonDataString = response.body.toString();
-      var jsonData = jsonDecode(jsonDataString);
-
-      return Right(FoodListResponse.fromJson(jsonData));
+      return Right(FoodListResponse.fromJson(response.data));
+    } on DioException catch (e) {
+      return Left(dioException(e));
     } catch (e) {
       return Left(ServerFailure(""));
     }
@@ -46,13 +43,11 @@ class FoodRepository {
   Future<Either<Failure, FoodDetailResponse>> getFoodDetail(
       String? foodId) async {
     try {
-      var uri = Uri.parse("$urlStaging/lookup.php?i=$foodId");
-      final response = await client.get(uri);
+      final response = await dio.get("$urlStaging/lookup.php?i=$foodId");
 
-      String jsonDataString = response.body.toString();
-      var jsonData = jsonDecode(jsonDataString);
-
-      return Right(FoodDetailResponse.fromJson(jsonData));
+      return Right(FoodDetailResponse.fromJson(response.data));
+    } on DioException catch (e) {
+      return Left(dioException(e));
     } catch (e) {
       return Left(ServerFailure(""));
     }
